@@ -105,7 +105,7 @@ class TodoListBase(object):
                 except TypeError as te:
                     try:
                         result = self._todos[int(p_identifier) - 1]
-                    except (ValueError, IndexError):
+                    except (ValueError, IndexError, TypeError):
                         raise InvalidTodoException from te
 
             return result
