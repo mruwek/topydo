@@ -1,0 +1,22 @@
+diff --git a/topydo/lib/ListFormat.py b/topydo/lib/ListFormat.py
+index 8b990f0..8c6ca9f 100644
+--- a/topydo/lib/ListFormat.py
++++ b/topydo/lib/ListFormat.py
+@@ -221,6 +221,8 @@ class ListFormatParser(object):
+             'z': lambda t: color_block(t) if config().colors() else ' ',
+         }
+         self.format_list = self._preprocess_format()
++        with open('re-error-dbg.txt', 'w') as f:
++            f.write(str(self.format_list) + '\n')
+ 
+     def _preprocess_format(self):
+         """
+@@ -276,6 +278,8 @@ class ListFormatParser(object):
+         """
+         parsed_list = []
+         repl_trunc = None
++        with open('re-error-dbg.txt', 'a') as f:
++            f.write(str(p_todo) + '\n')
+ 
+         for substr, placeholder, getter in self.format_list:
+             repl = getter(p_todo) if getter else ''
