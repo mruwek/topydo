@@ -20,6 +20,7 @@ todo.txt file.
 """
 
 import re
+import shlex
 
 from topydo.lib.Utils import date_string_to_date
 
@@ -94,25 +95,28 @@ def parse_line(p_string):
 
         rest = normal_head.group('rest')
 
-    for word in rest.split():
-        project = _PROJECT_MATCH.match(word)
-        if project:
-            result['projects'].append(project.group(1))
-
-        context = _CONTEXT_MATCH.match(word)
-        if context:
-            result['contexts'].append(context.group(1))
-
-        tag = _TAG_MATCH.match(word)
-        if tag:
-            tag_name = tag.group('tag')
-            tag_value = tag.group('value')
-            try:
-                result['tags'][tag_name].append(tag_value)
-            except KeyError:
-                result['tags'][tag_name] = [tag_value]
-        else:
+    for word in shlex.split(rest, posix=False):
+        if word.startswith(("'", '"')) and word.endswith(("'", '"')):
             result['text'] += word + ' '
+        else:
+            project = _PROJECT_MATCH.match(word)
+            if project:
+                result['projects'].append(project.group(1))
+
+            context = _CONTEXT_MATCH.match(word)
+            if context:
+                result['contexts'].append(context.group(1))
+
+            tag = _TAG_MATCH.match(word)
+            if tag:
+                tag_name = tag.group('tag')
+                tag_value = tag.group('value')
+                try:
+                    result['tags'][tag_name].append(tag_value)
+                except KeyError:
+                    result['tags'][tag_name] = [tag_value]
+            else:
+                result['text'] += word + ' '
 
     # strip trailing space from resulting text
     result['text'] = result['text'][:-1]
