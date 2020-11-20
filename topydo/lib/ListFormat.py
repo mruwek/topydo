@@ -274,6 +274,14 @@ class ListFormatParser(object):
         ListFormatParser._preprocess_format) stored in 'format_list'
         attribute.
         """
+
+        def get_substring(p_pattern, p_substr, p_repl, p_escape=False):
+            replacement = p_repl.replace('\\', '\\\\') if p_escape else p_repl
+            substring = re.sub(p_pattern, _strip_placeholder_braces, p_substr)
+            substring = re.sub(r'(?<!\\)%({ph}|\[{ph}\])'.format(ph=placeholder),
+                               replacement, substring)
+            return substring
+
         parsed_list = []
         repl_trunc = None
 
@@ -288,10 +296,15 @@ class ListFormatParser(object):
                 if repl == '':
                     substr = re.sub(pattern, '', substr)
                 else:
-                    substr = re.sub(pattern, _strip_placeholder_braces, substr)
-                    substr = re.sub(r'(?<!\\)%({ph}|\[{ph}\])'.format(ph=placeholder), repl, substr)
+                    substr = get_substring(pattern, substr, repl)
             except re.error:
-                raise ListFormatError
+                # Exception at this place is due to error in config or repl
+                # needs escaping.
+                try:
+                    substr = get_substring(pattern, substr, repl, p_escape=True)
+                except re.error:
+                    # Inform the user abour config error
+                    raise ListFormatError
 
             parsed_list.append(substr)
 
