@@ -95,7 +95,13 @@ def parse_line(p_string):
 
         rest = normal_head.group('rest')
 
-    for word in shlex.split(rest, posix=False):
+    try:
+        words = shlex.split(rest, posix=False)
+    except ValueError:
+        # safely quote potential lone quotation marks
+        words = shlex.split(shlex.quote(rest), posix=False)
+
+    for word in words:
         if word.startswith(("'", '"')) and word.endswith(("'", '"')):
             result['text'] += word + ' '
         else:
