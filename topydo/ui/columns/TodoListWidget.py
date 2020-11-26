@@ -120,24 +120,16 @@ class TodoListWidget(urwid.LineBox):
         self.listbox.keypress(p_size, p_direction)
         self.listbox.set_focus_valign('middle')
 
-    def _scroll_to_top(self, p_size):
+    def _scroll_to_top(self):
         if isinstance(self.todolist[0], urwid.Text):
-            self.listbox.set_focus(2)
+            self.listbox.set_focus(2, 'below')
         else:
-            self.listbox.set_focus(0)
+            self.listbox.set_focus(0, 'below')
 
-        # see comment at _scroll_to_bottom
-        self.listbox.calculate_visible(p_size)
-
-    def _scroll_to_bottom(self, p_size):
+    def _scroll_to_bottom(self):
         # -2 because the last Divider shouldn't be focused.
         end_pos = len(self.listbox.body) - 2
-        self.listbox.set_focus(end_pos)
-
-        # for some reason, set_focus doesn't rerender the list.
-        # calculate_visible is the only public method (besides keypress) that
-        # deals with pending focus changes.
-        self.listbox.calculate_visible(p_size)
+        self.listbox.set_focus(end_pos, 'above')
 
     @property
     def keystate(self):
@@ -269,8 +261,7 @@ class TodoListWidget(urwid.LineBox):
         proper executing methods.
 
         p_size should be specified for some of the builtin actions like 'up' or
-        'home' as they can interact with urwid.ListBox.keypress or
-        urwid.ListBox.calculate_visible.
+        'down' as they can interact with urwid.ListBox.keypress.
         """
         if p_action_str.startswith(('cmd ', 'cmdv ')):
             prefix, cmd = p_action_str.split(' ', 1)
@@ -312,9 +303,9 @@ class TodoListWidget(urwid.LineBox):
         elif p_action_str in ['up', 'down']:
             self._move(p_size, p_action_str)
         elif p_action_str == 'home':
-            self._scroll_to_top(p_size)
+            self._scroll_to_top()
         elif p_action_str == 'end':
-            self._scroll_to_bottom(p_size)
+            self._scroll_to_bottom()
         elif p_action_str in ['postpone', 'postpone_s']:
             pass
         elif p_action_str == 'pri':
