@@ -162,6 +162,7 @@ class _Config:
                 'R': 'swap_right',
                 '<Left>': 'prev_column',
                 '<Right>': 'next_column',
+                '<Up>': 'up',
                 '<Down>': 'down',
                 '<Esc>': 'reset',
             },
