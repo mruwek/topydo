@@ -31,6 +31,10 @@ def get_execute_signal(p_prefix):
     return signal
 
 
+def print_focus(new_focus):
+    with open('/tmp/focus-list', 'a') as f:
+        f.write(str(new_focus) + '\n')
+
 class TodoListWidget(urwid.LineBox):
     def __init__(self, p_view, p_title, p_keymap):
         self._view = None
@@ -45,6 +49,7 @@ class TodoListWidget(urwid.LineBox):
         self._title_widget = urwid.AttrMap(self._title, PaletteItem.DEFAULT)
 
         self.todolist = urwid.SimpleFocusListWalker([])
+        self.todolist.set_focus_changed_callback(print_focus)
         self.listbox = urwid.ListBox(self.todolist)
         self.view = p_view
 
@@ -92,9 +97,12 @@ class TodoListWidget(urwid.LineBox):
         with this list.
         """
         old_focus_position = self.todolist.focus
+        with open('/tmp/old-focus', 'a') as f:
+            f.write(str(old_focus_position) + '\n')
+            f.write('len: ' + str(len(self.view.groups.items())) + '\n\n')
         id_length = max_id_length(self.view.todolist.count())
 
-        del self.todolist[:]
+        self.todolist.clear()
 
         for group, todos in self.view.groups.items():
             if len(self.view.groups) > 1:
